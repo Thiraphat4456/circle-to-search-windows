@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 [assembly: System.Reflection.AssemblyTitle("Circle to Search")]
 [assembly: System.Reflection.AssemblyProduct("Circle to Search for Windows")]
-[assembly: System.Reflection.AssemblyVersion("1.1.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
 
 namespace CircleToSearch
 {

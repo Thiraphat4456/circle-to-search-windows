@@ -39,11 +39,11 @@ namespace CircleToSearch
             Encode(img, out bytes, out mime);
             string b64 = Convert.ToBase64String(bytes);
             long st = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
-            string action = "https://lens.google.com/v3/upload?hl=th&st=" + st;
+            string action = "https://lens.google.com/v3/upload?hl=" + Strings.LensLanguage + "&st=" + st;
             string ext = mime == "image/png" ? "png" : "jpg";
 
             var sb = new StringBuilder();
-            sb.Append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Circle to Search</title>");
+            sb.Append("<!DOCTYPE html><html lang=\"").Append(Strings.LensLanguage).Append("\"><head><meta charset=\"utf-8\"><title>Circle to Search</title>");
             sb.Append("<style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;");
             sb.Append("background:#0f1115;color:#e8eaed;font:16px 'Segoe UI','Leelawadee UI',Tahoma,sans-serif}");
             sb.Append(".c{text-align:center}.r{width:44px;height:44px;margin:0 auto 18px;border-radius:50%;");
@@ -62,7 +62,7 @@ namespace CircleToSearch
             sb.Append("function go(){try{var s=atob(d),u=new Uint8Array(s.length);for(var k=0;k<s.length;k++)u[k]=s.charCodeAt(k);");
             sb.Append("var dt=new DataTransfer();dt.items.add(new File([u],'circle.").Append(ext).Append("',{type:t}));");
             sb.Append("document.getElementById('i').files=dt.files;document.getElementById('f').submit();}");
-            sb.Append("catch(e){document.querySelector('.c div:nth-child(2)').textContent='").Append(Strings.LensFallback).Append("';}}\n");
+            sb.Append("catch(e){document.querySelector('.c div:nth-child(2)').textContent='").Append(Strings.LensFallback.Replace("\\", "\\\\").Replace("'", "\\'")).Append("';}}\n");
             sb.Append("var b=document.getElementById('b');b.onclick=go;setTimeout(function(){b.style.display='inline-block'},6000);go();\n");
             sb.Append("</script></body></html>");
 

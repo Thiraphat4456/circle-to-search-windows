@@ -13,6 +13,7 @@ namespace CircleToSearch
         public bool SnipPopup = true;          // after a normal Win+Shift+S snip, offer "Search with Google Lens"
         public bool SearchImmediately = false; // circle -> search right away (like Samsung)
         public bool AutoSaveScreenshots = false;
+        public UiLanguage Language = UiLanguage.Auto;
 
         public static Settings Load()
         {
@@ -27,6 +28,7 @@ namespace CircleToSearch
                         s.SnipPopup = ToBool(k.GetValue("SnipPopup"), true);
                         s.SearchImmediately = ToBool(k.GetValue("SearchImmediately"), false);
                         s.AutoSaveScreenshots = ToBool(k.GetValue("AutoSaveScreenshots"), false);
+                        s.Language = ToLanguage(k.GetValue("Language"));
                     }
                 }
             }
@@ -45,9 +47,21 @@ namespace CircleToSearch
                     try { k.DeleteValue("ReplaceWinShiftS", false); } catch { }
                     k.SetValue("SearchImmediately", SearchImmediately ? 1 : 0, RegistryValueKind.DWord);
                     k.SetValue("AutoSaveScreenshots", AutoSaveScreenshots ? 1 : 0, RegistryValueKind.DWord);
+                    k.SetValue("Language", (int)Language, RegistryValueKind.DWord);
                 }
             }
             catch { }
+        }
+
+        static UiLanguage ToLanguage(object o)
+        {
+            if (o == null) return UiLanguage.Auto;
+            try
+            {
+                int v = Convert.ToInt32(o);
+                return Enum.IsDefined(typeof(UiLanguage), v) ? (UiLanguage)v : UiLanguage.Auto;
+            }
+            catch { return UiLanguage.Auto; }
         }
 
         static bool ToBool(object o, bool def)

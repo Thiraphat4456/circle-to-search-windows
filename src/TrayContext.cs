@@ -49,6 +49,7 @@ namespace CircleToSearch
         public TrayContext(bool showNow)
         {
             settings = Settings.Load();
+            Strings.Apply(settings.Language);
             msgWin = new MessageWindow(OnMessage);
 
             tray = new NotifyIcon();
@@ -116,9 +117,42 @@ namespace CircleToSearch
             AddToggle(m, Strings.MenuStartup,
                 () => Settings.StartWithWindows, v => Settings.StartWithWindows = v);
 
+            m.Items.Add(BuildLanguageMenu());
+
             m.Items.Add(new ToolStripSeparator());
             m.Items.Add(new ToolStripMenuItem(Strings.MenuExit, null, delegate { ExitThread(); }));
             return m;
+        }
+
+        ToolStripMenuItem BuildLanguageMenu()
+        {
+            var root = new ToolStripMenuItem(Strings.MenuLanguage);
+            AddLanguage(root, Strings.MenuLanguageAuto, UiLanguage.Auto);
+            AddLanguage(root, Strings.MenuLanguageThai, UiLanguage.Thai);
+            AddLanguage(root, Strings.MenuLanguageEnglish, UiLanguage.English);
+            return root;
+        }
+
+        void AddLanguage(ToolStripMenuItem root, string text, UiLanguage lang)
+        {
+            var item = new ToolStripMenuItem(text);
+            item.Checked = settings.Language == lang;
+            item.Click += delegate
+            {
+                settings.Language = lang;
+                settings.Save();
+                Strings.Apply(lang);
+                // Rebuild the menu after it has closed so every label switches language.
+                tray.ContextMenuStrip.BeginInvoke(new Action(RebuildMenu));
+            };
+            root.DropDownItems.Add(item);
+        }
+
+        void RebuildMenu()
+        {
+            var old = tray.ContextMenuStrip;
+            tray.ContextMenuStrip = BuildMenu();
+            old.Dispose();
         }
 
         void AddToggle(ContextMenuStrip menu, string text, Func<bool> get, Action<bool> set)
