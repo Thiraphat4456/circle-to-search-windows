@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with the C# compiler built into Windows
+        shell: cmd
+        run: build.bat --no-pause
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CircleToSearch
+          path: CircleToSearch.exe
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          Compress-Archive -Path CircleToSearch.exe, README.md, LICENSE -DestinationPath "CircleToSearch-$tag.zip"
+          gh release create $tag CircleToSearch.exe "CircleToSearch-$tag.zip" --title "Circle to Search $tag" --notes-file RELEASE_NOTES.md
